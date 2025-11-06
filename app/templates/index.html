@@ -1,0 +1,100 @@
+<!-- app/templates/index.html -->
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>VPN Manager</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .client-form {
+            margin: 20px 0;
+        }
+
+        .client-list {
+            margin: 20px 0;
+        }
+
+        .client-item {
+            padding: 10px;
+            border: 1px solid #ddd;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Gestionnaire VPN</h1>
+
+        <div class="client-form">
+            <h3>Ajouter un client</h3>
+            <form onsubmit="addClient(event)">
+                <input type="text" id="clientName" placeholder="Nom du client" required>
+                <button type="submit">Ajouter</button>
+            </form>
+        </div>
+
+        <div class="client-list">
+            <h3>Clients existants</h3>
+            <div id="clientsList">
+                {% for client in clients %}
+                <div class="client-item">
+                    {{ client }}
+                    <button onclick="removeClient('{{ client }}')">Supprimer</button>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function addClient(event) {
+            event.preventDefault();
+            const formData = new FormData();
+            formData.append('client_name', document.getElementById('clientName').value);
+
+            const response = await fetch('/add-client', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                alert('Client ajouté! Configuration:\n' + result.config);
+                location.reload();
+            } else {
+                alert('Erreur: ' + result.error);
+            }
+        }
+
+        async function removeClient(clientName) {
+            if (confirm(`Supprimer le client ${clientName}?`)) {
+                const formData = new FormData();
+                formData.append('client_name', clientName);
+
+                const response = await fetch('/remove-client', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    location.reload();
+                } else {
+                    alert('Erreur: ' + result.error);
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>

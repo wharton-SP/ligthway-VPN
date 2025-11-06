@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  vpn-server:
+    build: .
+    container_name: wireguard-vpn
+    restart: unless-stopped
+    ports:
+      - "51820:51820/udp"    # Port WireGuard
+      - "5000:5000/tcp"      # Interface web
+    volumes:
+      - ./config:/etc/wireguard
+      - ./app:/app
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    sysctls:
+      - net.ipv4.ip_forward=1
+      - net.ipv6.conf.all.disable_ipv6=1
+    networks:
+      vpn-net:
+        ipv4_address: 10.10.10.2
+
+  # Optionnel : Reverse Proxy avec Nginx
+  nginx:
+    image: nginx:alpine
+    container_name: vpn-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./ssl:/etc/nginx/ssl
+    depends_on:
+      - vpn-server
+    networks:
+      - vpn-net
+
+networks:
+  vpn-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.10.10.0/24

@@ -1,0 +1,21 @@
+# Ignorer les fichiers de configuration VPN
+*.conf
+*.ovpn
+
+# Ignorer les clés privées et certificats
+*.key
+*.crt
+*.pem
+
+# Ignorer les fichiers de logs
+*.log
+
+# Ignorer les fichiers temporaires et systèmes
+*.swp
+*.swo
+*.bak
+*.tmp
+
+# Ignorer les dossiers spécifiques
+config/clients/
+secrets/

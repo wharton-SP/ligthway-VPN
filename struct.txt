@@ -1,0 +1,16 @@
+vpn-docker/
+├── docker-compose.yml
+├── Dockerfile
+├── nginx.conf
+├── struct.txt
+├── config/
+│   ├── wg0.conf
+│   └── clients/
+├── scripts/
+│   └── entrypoint.sh
+├── app/
+│   ├── app.py
+│   ├── vpn_manager.py
+│   └── templates/
+│       └── index.html
+└── ssl/
