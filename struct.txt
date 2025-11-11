@@ -1,16 +1,17 @@
-vpn-docker/
+lightway-vpn/
+│
 ├── docker-compose.yml
-├── Dockerfile
-├── nginx.conf
-├── struct.txt
-├── config/
-│   ├── wg0.conf
-│   └── clients/
-├── scripts/
-│   └── entrypoint.sh
-├── app/
+│
+├── backend/
+│   ├── Dockerfile
 │   ├── app.py
-│   ├── vpn_manager.py
-│   └── templates/
-│       └── index.html
-└── ssl/
+│   └── requirements.txt
+│
+├── frontend/
+│   ├── Dockerfile
+│   ├── package.json
+│   └── src/
+│       └── ...
+│
+└── wireguard-config/
+    └── ...

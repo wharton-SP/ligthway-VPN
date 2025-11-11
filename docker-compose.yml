@@ -1,23 +1,51 @@
 version: "3.8"
 
 services:
+  # --- WireGuard VPN Server ---
   wireguard:
     image: ghcr.io/linuxserver/wireguard
     container_name: wireguard
     cap_add:
       - NET_ADMIN
       - SYS_MODULE
-    network_mode: "host" # le conteneur partage le réseau de l’hôte
+    network_mode: "host"
     environment:
-      - PUID=1000 # UID local (tu peux vérifier avec `id -u`)
-      - PGID=1000 # GID local (`id -g`)
+      - PUID=1000
+      - PGID=1000
       - TZ=Africa/Nairobi
-      - SERVERURL=192.168.88.25 
-      - SERVERPORT=51820 # port UDP WireGuard
-      - PEERS=client1 
-      - PEERDNS=8.8.8.8
-      - INTERNAL_SUBNET=10.8.0.0 # réseau VPN interne
+      - SERVERURL=192.168.8.10
+      - SERVERPORT=51820
+      - PEERS=client1
+      - PEERSDNS=off
+      - INTERNAL_SUBNET=192.0.0.0
+      - ALLOWEDIPS=0.0.0.0/0
     volumes:
-      - ./config:/config 
+      - ./wireguard-config:/config
       - /lib/modules:/lib/modules:ro
+    restart: unless-stopped
+
+  # --- Backend Flask ---
+  backend:
+    build: ./backend
+    container_name: vpn-backend
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=development
+    volumes:
+      - ./backend:/app
+      - ./wireguard-config:/wireguard-config
+    ports:
+      - "5000:5000"
+    depends_on:
+      - wireguard
+    restart: unless-stopped
+
+  # --- Frontend React/Vite ---
+  frontend:
+    build: ./frontend
+    container_name: vpn-frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
     restart: unless-stopped
