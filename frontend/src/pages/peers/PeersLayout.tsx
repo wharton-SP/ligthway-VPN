@@ -13,22 +13,22 @@ function PeersLayout() : JSX.Element {
             setData(peers.peers);
         } 
 
-        const rload_wg = async () => {
-          await reload_wg();
-        }
+        // const rload_wg = async () => {
+        //   await reload_wg();
+        // }
         
         console.log("Fetching peers...");
         
         fetch_peers();
 
         const intervalId = setInterval(fetch_peers , 1000)
-        const intervalId_wg = setInterval(rload_wg , 10000)
+        // const intervalId_wg = setInterval(rload_wg , 10000)
 
         console.log("poll" , data);
 
         return() => {
           clearInterval(intervalId)
-          clearInterval(intervalId_wg)
+          // clearInterval(intervalId_wg)
         }
     } , [])
   

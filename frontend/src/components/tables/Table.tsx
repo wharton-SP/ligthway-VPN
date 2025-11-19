@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type JSX } from "react";
-import { CopyPlus, FileQuestion, Info, Loader, Trash } from "lucide-react";
+import { CopyPlus, Download, FileQuestion, Info, Loader, Trash } from "lucide-react";
 import { Button, Form, Input, useDisclosure } from "@heroui/react";
 import ModalComponent from "../modals/Modal";
 import { add_peers, delete_peers, get_peer, get_peers } from "../../services/Peers";
@@ -86,6 +86,22 @@ function Table({ data , setData }: propsType): JSX.Element {
     }
   }
 
+  const download_conf = () : void =>{
+    if (!qr) return ;
+
+    const blob = new Blob([qr] , {type : "text/plain"})
+    const url = URL.createObjectURL(blob)
+
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${peer}.conf`
+    document.body.appendChild(a)
+    a.click()
+    a.remove();
+
+    URL.revokeObjectURL(url)
+  }
+
   const onSubmit = async (e : React.FormEvent<HTMLFormElement>) => 
   {
     e.preventDefault();
@@ -132,15 +148,15 @@ function Table({ data , setData }: propsType): JSX.Element {
                     <td className="rounded-l-lg group-hover:bg-gray-100 px-2 py-1">
                       {item.name}
                     </td>
-                    <td>{item.metrics.traffic.received_mb ? item.metrics.traffic.received_mb : 0 } mb</td>
-                    <td>{item.metrics.traffic.sent_mb ? item.metrics.traffic.sent_mb : 0 } mb</td>
-                    <td>{item.metrics.traffic.total_mb ? item.metrics.traffic.total_mb : 0 } mb</td>
+                    <td className="group-hover:bg-gray-100 px-2 py-1">{item.metrics.traffic.received_mb ? item.metrics.traffic.received_mb : 0 } mb</td>
+                    <td className="group-hover:bg-gray-100 px-2 py-1">{item.metrics.traffic.sent_mb ? item.metrics.traffic.sent_mb : 0 } mb</td>
+                    <td className="group-hover:bg-gray-100 px-2 py-1">{item.metrics.traffic.total_mb ? item.metrics.traffic.total_mb : 0 } mb</td>
                     <td className="group-hover:bg-gray-100 px-2 py-1">
                       <div className={` text-white ${item.metrics.is_active ? 'bg-blue-500' : 'bg-gray-400'} w-20 text-center rounded-2xl pb-[1.5px]`}>
                         {item.metrics.status}
                       </div>
                     </td>
-                    <td>{item.metrics.time_since_handshake ? item.metrics.time_since_handshake : "-" }</td>
+                    <td className="group-hover:bg-gray-100 px-2 py-1">{item.metrics.time_since_handshake ? item.metrics.time_since_handshake : "-" }</td>
                     <td className="rounded-r-lg group-hover:bg-gray-100">
                       <div className="flex flex-row justify-between mx-8">
                         <button
@@ -255,11 +271,21 @@ function Table({ data , setData }: propsType): JSX.Element {
                       size={260}
                     />
                   </div>
-                  <div className="flex flex-row justify-center mt-2 mb-6">
+                  <div className="flex flex-row justify-center mt-2 mb-4">
                     Scan to import Wireguard config
+                  </div>
+                  <div className="flex flex-row justify-end mb-6">
+                      <button 
+                        onClick={()=>{
+                          download_conf()
+                        }}
+                        className="bg-blue-500 text-white rounded-lg px-3 py-1 flex flex-row hover:bg-blue-600 hover:cursor-pointer"
+                      >
+                        <Download className="mr-2" size={18}/>
+                        download conf file
+                      </button>  
                   </div>             
                 </>
-
               )
             }
           </div>
