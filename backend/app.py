@@ -2,7 +2,6 @@ from flask import Flask
 from routes.peers import peers_bp
 from routes.server import server_bp
 from routes.wireguard import wireguard_bp
-from routes.metrics import metrics_bp
 from flask_cors import CORS
 
 def create_app():
@@ -23,6 +22,5 @@ def create_app():
     app.register_blueprint(server_bp)
     app.register_blueprint(peers_bp)
     app.register_blueprint(wireguard_bp)
-    app.register_blueprint(metrics_bp)
     
     return app
