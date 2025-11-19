@@ -1,6 +1,7 @@
 import { useEffect, useState, type JSX } from 'react'
 import Table from '../../components/tables/Table'
 import { get_peers } from '../../services/Peers';
+import { reload_wg } from '../../services/Wg';
 
 function PeersLayout() : JSX.Element {
 
@@ -9,12 +10,26 @@ function PeersLayout() : JSX.Element {
     {
         const fetch_peers = async () => {
             const peers = await get_peers();
-            setData(peers);
+            setData(peers.peers);
         } 
+
+        const rload_wg = async () => {
+          await reload_wg();
+        }
         
         console.log("Fetching peers...");
-
+        
         fetch_peers();
+
+        const intervalId = setInterval(fetch_peers , 1000)
+        const intervalId_wg = setInterval(rload_wg , 10000)
+
+        console.log("poll" , data);
+
+        return() => {
+          clearInterval(intervalId)
+          clearInterval(intervalId_wg)
+        }
     } , [])
   
   return (

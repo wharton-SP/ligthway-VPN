@@ -26,15 +26,16 @@ function Table({ data , setData }: propsType): JSX.Element {
 
   async function add_peer (name : string) {
     try {
-      await add_peers(name);
-
       setLoading(true)
-      await new Promise(res => setTimeout(res,2000))
-      const update = await get_peers();
-      setData(update);
+
+      await add_peers(name);
+      // await new Promise(res => setTimeout(res,2000))
+      // const update = await get_peers();
+      // setData(update.peers);
     } 
     catch (error) 
     {
+      setLoading(false);
       console.log (error);
     }
     finally
@@ -48,9 +49,8 @@ function Table({ data , setData }: propsType): JSX.Element {
   async function get_one_peer (name : string) {
     try {
       info.onOpen()
-      const peer = await get_peer(name);
-      
       setLoading(true)
+      const peer = await get_peer(name);
       await new Promise(res => setTimeout(res,2000))
       setQr(peer.config)
       setPeer(peer.peer_name)
@@ -71,8 +71,8 @@ function Table({ data , setData }: propsType): JSX.Element {
 
       setLoading(true)
       await new Promise(res => setTimeout(res,2000))
-      const update = await get_peers()
-      setData(update)
+      // const update = await get_peers()
+      // setData(update.peers)
       alert(message.message);
     } 
     catch (error) 
@@ -114,8 +114,12 @@ function Table({ data , setData }: propsType): JSX.Element {
                   <th className="rounded-tl-lg bg-gray-200 rounded-bl-lg">
                     Name
                   </th>
-                  <th className="bg-gray-200"> IP Address </th>
-                  <th className="rounded-r-lg w-44 bg-gray-200"></th>
+                  <th className="bg-gray-200"> Reveived</th>
+                  <th className="bg-gray-200"> Sent</th>
+                  <th className="bg-gray-200"> Total</th>
+                  <th className="bg-gray-200"> Status</th>
+                  <th className="bg-gray-200"> HandShake Duration</th>
+                  <th className="rounded-r-lg w-fit bg-gray-200"></th>
                 </tr>
               </thead>
 
@@ -128,11 +132,17 @@ function Table({ data , setData }: propsType): JSX.Element {
                     <td className="rounded-l-lg group-hover:bg-gray-100 px-2 py-1">
                       {item.name}
                     </td>
+                    <td>{item.metrics.traffic.received_mb ? item.metrics.traffic.received_mb : 0 } mb</td>
+                    <td>{item.metrics.traffic.sent_mb ? item.metrics.traffic.sent_mb : 0 } mb</td>
+                    <td>{item.metrics.traffic.total_mb ? item.metrics.traffic.total_mb : 0 } mb</td>
                     <td className="group-hover:bg-gray-100 px-2 py-1">
-                      {item.ip}
+                      <div className={` text-white ${item.metrics.is_active ? 'bg-blue-500' : 'bg-gray-400'} w-20 text-center rounded-2xl pb-[1.5px]`}>
+                        {item.metrics.status}
+                      </div>
                     </td>
-                    <td className="rounded-r-lg group-hover:bg-gray-100 px-2 py-1">
-                      <div className="flex flex-row">
+                    <td>{item.metrics.time_since_handshake ? item.metrics.time_since_handshake : "-" }</td>
+                    <td className="rounded-r-lg group-hover:bg-gray-100">
+                      <div className="flex flex-row justify-between mx-8">
                         <button
                           className="text-blue-400 hover:cursor-pointer hover:text-blue-500"
                           onClick={() => {
@@ -142,7 +152,7 @@ function Table({ data , setData }: propsType): JSX.Element {
                         >
                           <Info size={18} />
                         </button>
-                        <button className="ml-12 text-red-400 hover:text-red-500 hover:cursor-pointer" onClick={()=>{
+                        <button className=" text-red-400 hover:text-red-500 hover:cursor-pointer" onClick={()=>{
                           setPeer(item.name)
                           del.onOpen()
                         }}>
