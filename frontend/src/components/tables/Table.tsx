@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState, type JSX } from "react";
 import { CopyPlus, Download, FileQuestion, Info, Loader, Trash } from "lucide-react";
-import { Button, Form, Input, useDisclosure } from "@heroui/react";
+import { Form, Input, useDisclosure } from "@heroui/react";
 import ModalComponent from "../modals/Modal";
-import { add_peers, delete_peers, get_peer, get_peers } from "../../services/Peers";
+import { add_peers, delete_peers, get_peer} from "../../services/Peers";
 import { QRCodeCanvas } from "qrcode.react";
+import type { Peer, ServerData } from "../../types/Types";
 
 interface propsType {
-  data: any[];
-  setData : (data : any[]) => void;
+  data: Peer[];
+  setData: React.Dispatch<React.SetStateAction<ServerData | null>>;
 }
 
 function Table({ data , setData }: propsType): JSX.Element {
@@ -19,6 +20,7 @@ function Table({ data , setData }: propsType): JSX.Element {
   const [loading , setLoading] = useState <boolean>(false)
   const [errors , setErrors] = useState();
   const [qr , setQr] = useState("");
+  const [ip ,setIp] = useState<string | null>("");
 
   function isArrayNotNull<T>(data: unknown): data is T[] {
     return Array.isArray(data) && data.length > 0;
@@ -54,6 +56,11 @@ function Table({ data , setData }: propsType): JSX.Element {
       await new Promise(res => setTimeout(res,2000))
       setQr(peer.config)
       setPeer(peer.peer_name)
+
+      const addressMatch = peer.config.match(/Address\s*=\s*([^\n]+)/);
+      const address = addressMatch ? addressMatch[1].trim() : null;
+
+      setIp(address);
     } 
     catch (error) 
     {
@@ -67,13 +74,13 @@ function Table({ data , setData }: propsType): JSX.Element {
 
   async function del_peer (name : string) {
     try {
-      const message = await delete_peers(name)
+      await delete_peers(name)
 
       setLoading(true)
       await new Promise(res => setTimeout(res,2000))
       // const update = await get_peers()
       // setData(update.peers)
-      alert(message.message);
+      // alert(message.message);
     } 
     catch (error) 
     {
@@ -130,11 +137,10 @@ function Table({ data , setData }: propsType): JSX.Element {
                   <th className="rounded-tl-lg bg-gray-200 rounded-bl-lg">
                     Name
                   </th>
-                  <th className="bg-gray-200"> Reveived</th>
-                  <th className="bg-gray-200"> Sent</th>
-                  <th className="bg-gray-200"> Total</th>
                   <th className="bg-gray-200"> Status</th>
-                  <th className="bg-gray-200"> HandShake Duration</th>
+                  <th className="bg-gray-200"> Traffic</th>
+                  <th className="bg-gray-200"> BandWidth</th>
+                  <th className="bg-gray-200"> Latest HandShake</th>
                   <th className="rounded-r-lg w-fit bg-gray-200"></th>
                 </tr>
               </thead>
@@ -148,19 +154,35 @@ function Table({ data , setData }: propsType): JSX.Element {
                     <td className="rounded-l-lg group-hover:bg-gray-100 px-2 py-1">
                       {item.name}
                     </td>
-                    <td className="group-hover:bg-gray-100 px-2 py-1">{item.metrics.traffic.received_mb ? item.metrics.traffic.received_mb : 0 } mb</td>
-                    <td className="group-hover:bg-gray-100 px-2 py-1">{item.metrics.traffic.sent_mb ? item.metrics.traffic.sent_mb : 0 } mb</td>
-                    <td className="group-hover:bg-gray-100 px-2 py-1">{item.metrics.traffic.total_mb ? item.metrics.traffic.total_mb : 0 } mb</td>
                     <td className="group-hover:bg-gray-100 px-2 py-1">
                       <div className={` text-white ${item.metrics.is_active ? 'bg-blue-500' : 'bg-gray-400'} w-20 text-center rounded-2xl pb-[1.5px]`}>
                         {item.metrics.status}
                       </div>
                     </td>
-                    <td className="group-hover:bg-gray-100 px-2 py-1">{item.metrics.time_since_handshake ? item.metrics.time_since_handshake : "-" }</td>
+                    <td className="group-hover:bg-gray-100 px-2 py-1">
+                      <div>
+                        Received: {item?.metrics?.traffic?.received_mb ?? 0 } Mb
+                      </div>
+                      <div>
+                        Sent: {item?.metrics?.traffic?.sent_mb ?? 0 } Mb
+                      </div>
+                      <div>
+                        Total: {item?.metrics?.traffic?.total_mb ?? 0 } Mb
+                      </div>
+                    </td>
+                    <td className="group-hover:bg-gray-100 px-2 py-1">
+                      <div>
+                        Received: {item?.bandwidth?.recv_kbps ?? 0 } Mbps
+                      </div>
+                      <div>
+                        Sent: {item?.bandwidth?.sent_mbps ?? 0 } Mbps
+                      </div>
+                    </td>
+                    <td className="group-hover:bg-gray-100 px-2 py-1">{item?.metrics?.time_since_handshake ?? "- - -" }</td>
                     <td className="rounded-r-lg group-hover:bg-gray-100">
-                      <div className="flex flex-row justify-between mx-8">
+                      <div className="flex flex-row justify-center mx-8">
                         <button
-                          className="text-blue-400 hover:cursor-pointer hover:text-blue-500"
+                          className="text-blue-400 hover:cursor-pointer hover:text-blue-500 mr-6"
                           onClick={() => {
                             if (item.name)
                               get_one_peer(item.name)
@@ -189,10 +211,10 @@ function Table({ data , setData }: propsType): JSX.Element {
                   <FileQuestion className="text-gray-400" size={32} />
                 </div>
                 <div className="text-lg font-medium">
-                  Aucune donnée disponible
+                  No data available
                 </div>
                 <p className="text-sm text-gray-400">
-                  Les données de peers ici une fois disponible
+                  The data of peers whill appear here once available
                 </p>
               </div>
             )}
@@ -261,6 +283,9 @@ function Table({ data , setData }: propsType): JSX.Element {
                 <>
                   <div className="font-semibold mb-2">
                     Peer Name : "{peer}"
+                  </div>
+                  <div className="mb-2 font-bold">
+                    Address : {ip}
                   </div>
                   <div className="mb-4 font-bold">
                     QR_Code :

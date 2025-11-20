@@ -1,4 +1,4 @@
-import { CloudLightning, Info, Link, Loader, Loader2, LoaderIcon } from "lucide-react";
+import { ChartColumn, CloudLightning, Info, Link, Loader} from "lucide-react";
 import { useEffect, useState, type JSX } from "react";
 import { Outlet } from "react-router-dom";
 import Navbar from "../components/navbar/Navbar";
@@ -6,9 +6,38 @@ import {
   NavBarLinksContainer,
   NavBarLinksContent,
 } from "../components/navbar/NavbarLinks";
+import { get_peers } from "../services/Peers";
+import type { ServerData } from "../types/Types";
 
 function MainLayout(): JSX.Element {
   const [loading, set_loading] = useState(true);
+  const [data , setData] = useState <ServerData | null>(null)
+
+  useEffect(()=>
+  {
+    const fetch_peers = async () => {
+        const peers = await get_peers();
+        setData(peers);
+    } 
+
+    // const rload_wg = async () => {
+    //   await reload_wg();
+    // }
+    
+    console.log("Fetching peers...");
+    
+    fetch_peers();
+
+    const intervalId = setInterval(fetch_peers , 1000)
+    // const intervalId_wg = setInterval(rload_wg , 10000)
+
+    console.log("poll" , data);
+
+    return() => {
+      clearInterval(intervalId)
+      // clearInterval(intervalId_wg)
+    }
+  } , [])
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -42,8 +71,14 @@ function MainLayout(): JSX.Element {
               <NavBarLinksContainer>
                 <div>
                   <NavBarLinksContent
-                    icon={<Link size={18} />}
+                    icon={<ChartColumn size={18} />}
                     href="/"
+                    text="Dashboard"
+                  />
+
+                  <NavBarLinksContent
+                    icon={<Link size={18} />}
+                    href="/peers"
                     text="Peers"
                   />
 
@@ -57,7 +92,7 @@ function MainLayout(): JSX.Element {
             </Navbar>
           </div>
           <div className="h-full w-full bg-gray-50">
-            <Outlet />
+            <Outlet context={{data,setData}} />
           </div>
         </div>
       </div>
