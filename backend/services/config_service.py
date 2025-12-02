@@ -47,7 +47,7 @@ ListenPort = 51820
 [Peer]
 PublicKey = {server_public_key}
 PresharedKey = {preshared_key}
-Endpoint = 192.168.88.30:51820
+Endpoint = 192.168.43.30:51820
 AllowedIPs = 0.0.0.0/0, 10.0.3.0/24
 """
             
@@ -73,7 +73,7 @@ DNS = 8.8.8.8
 [Peer]
 PublicKey = {server_public_key}
 PresharedKey = {preshared_key}
-Endpoint = 192.168.88.30:51820
+Endpoint = 192.168.43.30:51820
 AllowedIPs = 0.0.0.0/0, 10.0.3.0/24
 """
         

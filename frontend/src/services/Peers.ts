@@ -1,6 +1,6 @@
 import type { addResponse, getPeerResponse, responseServInfo } from "../types/Types";
 
-const base_url = "http://192.168.88.30:5000";
+const base_url = "http://192.168.43.30:5000";
 
 export const reload_server = async () => {
 }

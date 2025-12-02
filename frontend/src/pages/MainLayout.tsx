@@ -28,7 +28,7 @@ function MainLayout(): JSX.Element {
     
     fetch_peers();
 
-    const intervalId = setInterval(fetch_peers , 1000)
+    const intervalId = setInterval(fetch_peers , 500)
     // const intervalId_wg = setInterval(rload_wg , 10000)
 
     console.log("poll" , data);
@@ -42,7 +42,7 @@ function MainLayout(): JSX.Element {
   useEffect(() => {
     const timer = setTimeout(() => {
       set_loading(false);
-    }, 2000);
+    }, 500);
 
     return () => clearTimeout(timer);
   }, []);

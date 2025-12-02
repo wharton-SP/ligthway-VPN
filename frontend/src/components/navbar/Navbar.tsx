@@ -12,7 +12,7 @@ function Navbar({children}:propsType) : JSX.Element {
         <div className='flex flex-col h-full w-full'>
             <div className='border-b-2 mx-4 border-gray-300'>
                 <NavLink to="/" >
-                    <div className='mx-10 my-6 text-blue-400 hover:cursor-pointer'>
+                    <div className='mx-5 my-6 text-blue-400 hover:cursor-pointer'>
                         <div className='mx-10'>
                             <CloudLightning size={30} />
                         </div>
